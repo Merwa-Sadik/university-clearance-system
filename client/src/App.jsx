@@ -1,34 +1,71 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Unauthorized from "./pages/Unauthorized";
+import NotFound from "./pages/NotFound";
+
+import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentClearance from "./pages/student/StudentClearance";
+import StudentProfile from "./pages/student/StudentProfile";
+import StudentNotifications from "./pages/student/StudentNotifications";
+
+import StaffDashboard from "./pages/staff/StaffDashboard";
+import StaffClearance from "./pages/staff/StaffClearance";
+
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+
+const STAFF_ROLES = ["Department", "Library", "Finance", "Dormitory", "Registrar"];
 
 function App() {
-  const [status, setStatus] = useState("Checking...");
-
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/health`)
-      .then((res) => res.json())
-      .then((data) => setStatus(data.message))
-      .catch(() => setStatus("Cannot reach server — make sure the backend is running"));
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="card max-w-md w-full text-center">
-        <div className="w-16 h-16 bg-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-white text-2xl font-bold">U</span>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          Student Clearance Management System
-        </h1>
-        <p className="text-gray-500 text-sm mb-6">University of Excellence</p>
-        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
-            API Status
-          </p>
-          <p className="text-sm font-medium text-blue-700">{status}</p>
-        </div>
-        <p className="text-xs text-gray-400 mt-4">Phase 1 — Project Setup ✓</p>
-      </div>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public */}
+          <Route path="/login"    element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* Student */}
+          <Route path="/student/dashboard" element={
+            <ProtectedRoute allowedRoles={["Student"]}><StudentDashboard /></ProtectedRoute>
+          } />
+          <Route path="/student/clearance" element={
+            <ProtectedRoute allowedRoles={["Student"]}><StudentClearance /></ProtectedRoute>
+          } />
+          <Route path="/student/profile" element={
+            <ProtectedRoute allowedRoles={["Student"]}><StudentProfile /></ProtectedRoute>
+          } />
+          <Route path="/student/notifications" element={
+            <ProtectedRoute allowedRoles={["Student"]}><StudentNotifications /></ProtectedRoute>
+          } />
+
+          {/* Staff */}
+          <Route path="/staff/dashboard" element={
+            <ProtectedRoute allowedRoles={STAFF_ROLES}><StaffDashboard /></ProtectedRoute>
+          } />
+          <Route path="/staff/clearance" element={
+            <ProtectedRoute allowedRoles={STAFF_ROLES}><StaffClearance /></ProtectedRoute>
+          } />
+
+          {/* Admin */}
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute allowedRoles={["Admin"]}><AdminDashboard /></ProtectedRoute>
+          } />
+          <Route path="/admin/users" element={
+            <ProtectedRoute allowedRoles={["Admin"]}><AdminUsers /></ProtectedRoute>
+          } />
+
+          {/* Redirects */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
