@@ -15,7 +15,7 @@ const submitRequest = (req, res) => {
 
     const studentId = students[0].id;
 
-    // Rule 1: no duplicate active requests
+    // Rule 1: block only if a Pending request exists (Rejected = allowed to resubmit)
     const checkSQL = "SELECT id FROM clearance_requests WHERE student_id = ? AND overall_status = 'Pending'";
     db.query(checkSQL, [studentId], (err2, existing) => {
       if (err2) return sendError(res, "Database error", 500);

@@ -53,6 +53,11 @@ const StudentDashboard = () => {
           <p className="text-sm text-gray-500">You have not submitted a clearance request yet.</p>
         ) : (
           <>
+            {cr.overall_status === "Rejected" && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm font-medium text-red-700">Request rejected — go to the Clearance page to resubmit.</p>
+              </div>
+            )}
             <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
               <div className="bg-blue-700 h-2 rounded-full transition-all duration-500" style={{ width: `${cr.progress}%` }} />
             </div>

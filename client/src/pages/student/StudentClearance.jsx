@@ -61,8 +61,22 @@ const StudentClearance = () => {
                 Submitted {new Date(request.created_at).toLocaleDateString()}
               </p>
             </div>
-            <StatusBadge status={request.overall_status} />
+            <div className="flex items-center gap-3">
+              <StatusBadge status={request.overall_status} />
+              {request.overall_status === "Rejected" && (
+                <button onClick={handleSubmit} disabled={submitting} className="btn-primary text-sm">
+                  {submitting ? "Submitting..." : "Resubmit Request"}
+                </button>
+              )}
+            </div>
           </div>
+
+          {request.overall_status === "Rejected" && (
+            <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm font-medium text-red-700">Your clearance request was rejected.</p>
+              <p className="text-xs text-red-600 mt-1">Review the comments below and click "Resubmit Request" to start a new clearance process.</p>
+            </div>
+          )}
 
           <div className="space-y-3">
             {request.steps.map((step, i) => (
