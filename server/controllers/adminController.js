@@ -85,4 +85,34 @@ const getDepartments = (req, res) => {
   });
 };
 
-module.exports = { getAllUsers, createUser, updateUser, deleteUser, getDepartments };
+// POST /api/admin/departments
+const createDepartment = (req, res) => {
+  const { department_name } = req.body;
+  if (!department_name) return sendError(res, "department_name is required", 400);
+  db.query("INSERT INTO departments (department_name) VALUES (?)", [department_name], (err, result) => {
+    if (err) return sendError(res, "Could not create department", 500);
+    sendSuccess(res, { id: result.insertId }, "Department created", 201);
+  });
+};
+
+// PUT /api/admin/departments/:id
+const updateDepartment = (req, res) => {
+  const { department_name } = req.body;
+  if (!department_name) return sendError(res, "department_name is required", 400);
+  db.query("UPDATE departments SET department_name = ? WHERE id = ?", [department_name, req.params.id], (err, result) => {
+    if (err) return sendError(res, "Database error", 500);
+    if (result.affectedRows === 0) return sendError(res, "Department not found", 404);
+    sendSuccess(res, {}, "Department updated");
+  });
+};
+
+// DELETE /api/admin/departments/:id
+const deleteDepartment = (req, res) => {
+  db.query("DELETE FROM departments WHERE id = ?", [req.params.id], (err, result) => {
+    if (err) return sendError(res, "Database error", 500);
+    if (result.affectedRows === 0) return sendError(res, "Department not found", 404);
+    sendSuccess(res, {}, "Department deleted");
+  });
+};
+
+module.exports = { getAllUsers, createUser, updateUser, deleteUser, getDepartments, createDepartment, updateDepartment, deleteDepartment };

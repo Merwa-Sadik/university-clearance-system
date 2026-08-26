@@ -51,6 +51,14 @@ const StudentDashboard = () => {
         <h3 className="font-semibold text-gray-900 mb-4">Clearance Progress</h3>
         {!cr ? (
           <p className="text-sm text-gray-500">You have not submitted a clearance request yet.</p>
+        ) : cr.overall_status === "Approved" ? (
+          <div className="text-center py-6">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-3xl">🎉</span>
+            </div>
+            <h4 className="font-bold text-green-700 text-lg">Clearance Fully Approved!</h4>
+            <p className="text-sm text-gray-500 mt-1">Congratulations! All offices have approved your clearance.</p>
+          </div>
         ) : (
           <>
             {cr.overall_status === "Rejected" && (

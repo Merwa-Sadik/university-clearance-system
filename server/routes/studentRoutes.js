@@ -4,8 +4,8 @@ const { getAllStudents, getMyProfile, getStudentById } = require("../controllers
 const { protect } = require("../middleware/authMiddleware");
 const { authorize } = require("../middleware/roleMiddleware");
 
-router.get("/", protect, authorize("Admin", "Department", "Library", "Finance", "Dormitory", "Registrar"), getAllStudents);
+router.get("/", protect, authorize("Admin", "Department", "Library", "Sport", "Dormitory", "Registrar", "FacultyDean", "DormitoryChief"), getAllStudents);
 router.get("/profile", protect, authorize("Student"), getMyProfile);
-router.get("/:id", protect, authorize("Admin", "Department", "Library", "Finance", "Dormitory", "Registrar"), getStudentById);
+router.get("/:id", protect, authorize("Admin", "Department", "Library", "Sport", "Dormitory", "Registrar", "FacultyDean", "DormitoryChief"), getStudentById);
 
 module.exports = router;

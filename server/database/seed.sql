@@ -8,9 +8,11 @@ INSERT IGNORE INTO roles (id, role_name) VALUES
   (2, 'Student'),
   (3, 'Department'),
   (4, 'Library'),
-  (5, 'Finance'),
   (6, 'Dormitory'),
-  (7, 'Registrar');
+  (7, 'Registrar'),
+  (8, 'Sport'),
+  (9, 'FacultyDean'),
+  (10, 'DormitoryChief');
 
 -- ─────────────────────────────────────────
 -- OFFICES
@@ -18,9 +20,11 @@ INSERT IGNORE INTO roles (id, role_name) VALUES
 INSERT IGNORE INTO offices (id, office_name) VALUES
   (1, 'Academic Department'),
   (2, 'Library'),
-  (3, 'Finance'),
+  (3, 'Sport Office'),
   (4, 'Dormitory'),
-  (5, 'Registrar');
+  (5, 'Registrar'),
+  (6, 'Faculty Dean'),
+  (7, 'Dormitory Chief');
 
 -- ─────────────────────────────────────────
 -- DEPARTMENTS
@@ -52,8 +56,8 @@ INSERT IGNORE INTO users (id, full_name, email, password, role_id, office_id) VA
   (3, 'Mr. James Otieno',  'library@university.edu',
    '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 4, 2),
 
-  (4, 'Ms. Grace Wanjiku', 'finance@university.edu',
-   '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 5, 3),
+  (4, 'Ms. Grace Wanjiku', 'sport@university.edu',
+   '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 8, 3),
 
   (5, 'Mr. Peter Kamau',   'dormitory@university.edu',
    '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 6, 4),
@@ -65,7 +69,13 @@ INSERT IGNORE INTO users (id, full_name, email, password, role_id, office_id) VA
    '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 2, NULL),
 
   (8, 'Jane Smith',        'jane@university.edu',
-   '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 2, NULL);
+   '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 2, NULL),
+
+  (9,  'Prof. David Ochieng', 'dean@university.edu',
+   '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 9, 6),
+
+  (10, 'Mr. Samuel Kipchoge', 'dormchief@university.edu',
+   '$2b$10$6NBisi3RORmEUI3B7lL4DOonG0gR9sHbd31lmhyw2.32WirK5V54e', 10, 7);
 
 -- ─────────────────────────────────────────
 -- STUDENT PROFILES
