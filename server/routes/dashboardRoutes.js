@@ -4,7 +4,7 @@ const { studentDashboard, staffDashboard, adminDashboard } = require("../control
 const { protect } = require("../middleware/authMiddleware");
 const { authorize } = require("../middleware/roleMiddleware");
 
-const STAFF = ["Department", "Library", "Finance", "Dormitory", "Registrar"];
+const STAFF = ["Department", "Library", "Sport", "Dormitory", "Registrar", "FacultyDean", "DormitoryChief"];
 
 router.get("/student", protect, authorize("Student"), studentDashboard);
 router.get("/staff",   protect, authorize(...STAFF),  staffDashboard);

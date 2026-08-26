@@ -3,13 +3,15 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const ROLE_REDIRECTS = {
-  Student:    "/student/dashboard",
-  Admin:      "/admin/dashboard",
-  Department: "/staff/dashboard",
-  Library:    "/staff/dashboard",
-  Finance:    "/staff/dashboard",
-  Dormitory:  "/staff/dashboard",
-  Registrar:  "/staff/dashboard",
+  Student:        "/student/dashboard",
+  Admin:          "/admin/dashboard",
+  Department:     "/staff/dashboard",
+  Library:        "/staff/dashboard",
+  Sport:          "/staff/dashboard",
+  Dormitory:      "/staff/dashboard",
+  Registrar:      "/staff/dashboard",
+  FacultyDean:    "/staff/dashboard",
+  DormitoryChief: "/staff/dashboard",
 };
 
 const Login = () => {

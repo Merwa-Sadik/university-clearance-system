@@ -17,8 +17,9 @@ import StaffClearance from "./pages/staff/StaffClearance";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminDepartments from "./pages/admin/AdminDepartments";
 
-const STAFF_ROLES = ["Department", "Library", "Finance", "Dormitory", "Registrar"];
+const STAFF_ROLES = ["Department", "Library", "Sport", "Dormitory", "Registrar", "FacultyDean", "DormitoryChief"];
 
 function App() {
   return (
@@ -58,6 +59,9 @@ function App() {
           } />
           <Route path="/admin/users" element={
             <ProtectedRoute allowedRoles={["Admin"]}><AdminUsers /></ProtectedRoute>
+          } />
+          <Route path="/admin/departments" element={
+            <ProtectedRoute allowedRoles={["Admin"]}><AdminDepartments /></ProtectedRoute>
           } />
 
           {/* Redirects */}

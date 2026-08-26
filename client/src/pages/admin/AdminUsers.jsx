@@ -5,12 +5,24 @@ import Spinner from "../../components/Spinner";
 import Toast from "../../components/Toast";
 
 const ROLES = [
-  { id: 1, name: "Admin" }, { id: 2, name: "Student" }, { id: 3, name: "Department" },
-  { id: 4, name: "Library" }, { id: 5, name: "Finance" }, { id: 6, name: "Dormitory" }, { id: 7, name: "Registrar" },
+  { id: 1,  name: "Admin" },
+  { id: 2,  name: "Student" },
+  { id: 3,  name: "Department" },
+  { id: 4,  name: "Library" },
+  { id: 6,  name: "Dormitory" },
+  { id: 7,  name: "Registrar" },
+  { id: 8,  name: "Sport" },
+  { id: 9,  name: "FacultyDean" },
+  { id: 10, name: "DormitoryChief" },
 ];
 const OFFICES = [
-  { id: 1, name: "Academic Department" }, { id: 2, name: "Library" },
-  { id: 3, name: "Finance" }, { id: 4, name: "Dormitory" }, { id: 5, name: "Registrar" },
+  { id: 1, name: "Academic Department" },
+  { id: 2, name: "Library" },
+  { id: 3, name: "Sport Office" },
+  { id: 4, name: "Dormitory" },
+  { id: 5, name: "Registrar" },
+  { id: 6, name: "Faculty Dean" },
+  { id: 7, name: "Dormitory Chief" },
 ];
 
 const EMPTY_FORM = { full_name: "", email: "", password: "", role_id: "", office_id: "" };

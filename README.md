@@ -1,4 +1,4 @@
-# University Clearance System
+# Student Clearance Management System
 
 A full-stack web application for managing student clearance workflows across multiple university offices — built with React, Node.js/Express, and MySQL.
 
@@ -12,106 +12,145 @@ A full-stack web application for managing student clearance workflows across mul
 
 ## Overview
 
-The University Clearance System digitizes the student clearance process. Instead of physically visiting each office, students submit a single clearance request that is routed through all required university offices in sequence. Each office staff member can approve or reject their step, and the student is notified at every stage. Admins have full visibility over all requests and users.
-
----
-
-## Roles
-
-| Role         | Description                                              |
-|--------------|----------------------------------------------------------|
-| `Admin`      | Full system access — manage users, view all requests     |
-| `Student`    | Submit clearance requests, track status, view history    |
-| `Department` | Review and approve/reject the academic department step   |
-| `Library`    | Review and approve/reject the library clearance step     |
-| `Finance`    | Review and approve/reject the finance clearance step     |
-| `Dormitory`  | Review and approve/reject the dormitory clearance step   |
-| `Registrar`  | Final approval — issues the clearance certificate        |
-
----
-
-## Clearance Workflow
-
-A clearance request passes through **5 offices in order**:
-
-```
-Student submits request
-        ↓
-1. Academic Department
-        ↓
-2. Library
-        ↓
-3. Finance
-        ↓
-4. Dormitory
-        ↓
-5. Registrar  →  Overall status: Approved ✓
-```
-
-If any office rejects a step, the overall request is marked **Rejected** and the student is notified with the reason.
+The Student Clearance Management System digitizes the university clearance process. Instead of physically visiting each office, students submit a single clearance request that is automatically routed through all required university offices. Each office staff member reviews and approves or rejects their assigned step. The student is notified at every stage and can track progress in real time. Administrators have full visibility over all users, requests, departments, and system activity.
 
 ---
 
 ## Features
 
-- **Authentication** — JWT-based login with role-aware redirects
-- **Student Portal** — Submit clearance requests, track per-office status in real time
-- **Office Dashboards** — Each office staff sees only their pending steps
-- **Approve / Reject** — Staff can approve or reject with an optional comment
-- **Admin Panel** — Manage users, view all clearance requests and audit logs
-- **Notifications** — In-app notifications sent to students on every status change
-- **Audit Logs** — Every action (login, approval, rejection) is recorded
-- **Seed Data** — Demo accounts for every role ready out of the box
+- JWT-based authentication with role-aware redirects after login
+- Student portal — submit, track, cancel, and resubmit clearance requests
+- Per-office staff dashboards — each office only sees their own pending steps
+- Approve or reject with an optional comment
+- Registrar can only approve after all other offices have approved first
+- Congratulations screen shown to students when clearance is fully approved
+- In-app notifications sent on every status change
+- Mark notifications as read individually or all at once
+- Admin panel — full CRUD for users and departments
+- Audit logs — every login, approval, and rejection is recorded
+- Responsive UI built with Tailwind CSS — works on mobile and desktop
+- Parameterized SQL queries throughout — no ORM, no raw string concatenation
+
+---
+
+## User Roles
+
+| Role | Description |
+|---|---|
+| `Admin` | Full system access — manage users, departments, view all activity |
+| `Student` | Submit clearance requests, track status, view notifications |
+| `Department` | Approve/reject the Academic Department clearance step |
+| `Library` | Approve/reject the Library clearance step |
+| `Sport` | Approve/reject the Sport Office clearance step |
+| `Dormitory` | Approve/reject the Dormitory clearance step |
+| `Registrar` | Final approval — can only approve after all other offices have approved |
+| `FacultyDean` | Approve/reject the Faculty Dean clearance step |
+| `DormitoryChief` | Approve/reject the Dormitory Chief clearance step |
+
+---
+
+## Clearance Workflow
+
+A clearance request passes through **7 offices**. All offices except the Registrar can be processed in any order. The Registrar step is the final gate — it can only be approved after all other 6 offices have approved.
+
+```
+Student submits request
+        ↓
+1. Academic Department
+2. Library
+3. Sport Office
+4. Dormitory
+5. Faculty Dean
+6. Dormitory Chief
+        ↓
+7. Registrar  →  Overall status: Approved ✓
+```
+
+If any office rejects a step, the overall request is immediately marked **Rejected** and the student is notified with the reason. The student can then resubmit a fresh request after reviewing the comments.
 
 ---
 
 ## Tech Stack
 
-| Layer    | Technology                          |
-|----------|-------------------------------------|
+| Layer | Technology |
+|---|---|
 | Frontend | React 19, Vite, Tailwind CSS v3, React Router v7 |
-| Backend  | Node.js, Express 4                  |
-| Database | MySQL 8 via `mysql2`                |
-| Auth     | JWT (`jsonwebtoken`) + `bcrypt`     |
+| Backend | Node.js, Express 4 |
+| Database | MySQL 8 via `mysql2` (raw SQL, no ORM) |
+| Auth | `jsonwebtoken` + `bcrypt` |
+| HTTP | Native `fetch()` — no Axios |
 
 ---
 
-## Folder Structure
+## Project Structure
 
 ```
 university-clearance-system/
 ├── server/
 │   ├── config/
 │   │   └── db.js                  # MySQL connection pool
-│   ├── controllers/               # Route handler logic
+│   ├── controllers/
+│   │   ├── authController.js      # Register, login, getMe
+│   │   ├── clearanceController.js # Submit, cancel, approve, reject
+│   │   ├── studentController.js   # Student profile queries
+│   │   ├── notificationController.js
+│   │   ├── adminController.js     # User & department CRUD
+│   │   └── dashboardController.js # Stats for each role
 │   ├── database/
-│   │   ├── schema.sql             # Full DB schema (tables + indexes)
-│   │   ├── seed.sql               # Demo roles, offices, departments & users
-│   │   └── init.js                # Runs schema + seed against MySQL
-│   ├── middleware/                # Auth & role-guard middleware
-│   ├── models/                    # DB query helpers per resource
+│   │   ├── schema.sql             # All tables, indexes, constraints
+│   │   ├── seed.sql               # Demo roles, offices, departments, users
+│   │   ├── init.js                # Runs schema + seed (npm run db:init)
+│   │   ├── migrate_offices.sql    # Migration: rename Finance, add new offices
+│   │   └── migrate.js             # Runs migration (npm run db:migrate)
+│   ├── middleware/
+│   │   ├── authMiddleware.js      # JWT verification → req.user
+│   │   └── roleMiddleware.js      # authorize(...roles) guard
 │   ├── routes/                    # Express route definitions
-│   ├── services/                  # Business logic (notifications, clearance flow)
-│   ├── utils/                     # Shared helpers (JWT, response wrappers)
-│   ├── .env.example               # Environment variable template
+│   ├── utils/
+│   │   ├── response.js            # sendSuccess / sendError helpers
+│   │   ├── auditLog.js            # logAction() helper
+│   │   └── notify.js             # createNotification() helper
+│   ├── .env                       # Your local environment variables
+│   ├── .env.example               # Template — safe to commit
 │   ├── server.js                  # Express entry point
 │   └── package.json
 │
 ├── client/
 │   ├── src/
-│   │   ├── components/            # Shared UI components
-│   │   ├── context/               # Auth context / global state
-│   │   ├── hooks/                 # Custom React hooks
-│   │   ├── layouts/               # Page layout wrappers (dashboard shell)
-│   │   ├── pages/                 # Route-level page components
-│   │   ├── routes/                # Protected & role-based route guards
-│   │   ├── services/              # API call functions (axios/fetch wrappers)
-│   │   ├── utils/                 # Frontend helpers
-│   │   ├── App.jsx                # Root component & router setup
-│   │   ├── main.jsx               # React entry point
-│   │   └── index.css              # Tailwind base styles
-│   ├── .env                       # Frontend environment variables
-│   ├── vite.config.js             # Vite config with API proxy
+│   │   ├── components/
+│   │   │   ├── Spinner.jsx
+│   │   │   ├── StatusBadge.jsx    # Pending / Approved / Rejected badge
+│   │   │   └── Toast.jsx          # Success / error toast notifications
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx    # Login, logout, session persistence
+│   │   ├── layouts/
+│   │   │   └── DashboardLayout.jsx # Sidebar + main content shell
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   ├── Unauthorized.jsx
+│   │   │   ├── NotFound.jsx
+│   │   │   ├── student/
+│   │   │   │   ├── StudentDashboard.jsx
+│   │   │   │   ├── StudentClearance.jsx
+│   │   │   │   ├── StudentProfile.jsx
+│   │   │   │   └── StudentNotifications.jsx
+│   │   │   ├── staff/
+│   │   │   │   ├── StaffDashboard.jsx
+│   │   │   │   └── StaffClearance.jsx
+│   │   │   └── admin/
+│   │   │       ├── AdminDashboard.jsx
+│   │   │       ├── AdminUsers.jsx
+│   │   │       └── AdminDepartments.jsx
+│   │   ├── routes/
+│   │   │   └── ProtectedRoute.jsx # Role-based route guard
+│   │   ├── services/
+│   │   │   └── api.js             # fetch() wrapper with auto JWT header
+│   │   ├── App.jsx                # All routes defined here
+│   │   ├── main.jsx
+│   │   └── index.css              # Tailwind directives + utility classes
+│   ├── .env                       # VITE_API_URL
+│   ├── vite.config.js             # Dev server + /api proxy
 │   └── package.json
 │
 └── README.md
@@ -122,12 +161,14 @@ university-clearance-system/
 ## Local Setup
 
 ### Prerequisites
+
 - Node.js >= 18
-- MySQL 8.0+ running locally
+- MySQL 8.0+ running locally (recommended: XAMPP)
 
 ---
 
 ### 1. Clone the repository
+
 ```bash
 git clone <your-repo-url>
 cd university-clearance-system
@@ -142,62 +183,105 @@ cd server
 cp .env.example .env
 ```
 
-Edit `server/.env` with your MySQL credentials:
+Edit `server/.env`:
+
 ```env
 PORT=5000
 
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=your_mysql_password
+DB_PASSWORD=
 DB_NAME=student_clearance
 
 JWT_SECRET=replace_with_a_long_random_string
 JWT_EXPIRES_IN=1d
 ```
 
+> If you are using XAMPP, `DB_USER=root` and `DB_PASSWORD=` (empty) are the defaults.
+
 ---
 
-### 3. Initialize the database
+### 3. Install backend dependencies
 
-Make sure MySQL is running, then:
 ```bash
 npm install
+```
+
+---
+
+### 4. Initialize the database
+
+Make sure MySQL is running, then:
+
+```bash
 npm run db:init
 ```
 
-This runs `schema.sql` (creates all tables) then `seed.sql` (inserts demo data) automatically.
+This creates all tables and inserts all demo data automatically.
 
----
-
-### 4. Start the backend
-```bash
-npm run dev
-# API running at http://localhost:5000
+Expected output:
+```
+✅ schema.sql executed successfully
+✅ seed.sql executed successfully
+🎉 Database ready. You can now start the server.
 ```
 
 ---
 
-### 5. Configure the frontend
+### 5. Start the backend
 
 ```bash
-cd ../client
+npm run dev
+```
+
+Expected output:
+```
+✅ Connected to MySQL database
+🚀 Server running on http://localhost:5000
+```
+
+---
+
+### 6. Configure and start the frontend
+
+Open a new terminal:
+
+```bash
+cd client
 ```
 
 Edit `client/.env`:
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
----
+Then:
 
-### 6. Start the frontend
 ```bash
 npm install
 npm run dev
-# App running at http://localhost:5173
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## Migrating an Existing Database
+
+If you already ran `db:init` with the old office structure (Finance instead of Sport Office), run the migration instead of reinitializing:
+
+```bash
+cd server
+npm run db:migrate
+```
+
+This will:
+- Rename `Finance` → `Sport Office`
+- Add `Faculty Dean` office (id = 6)
+- Add `Dormitory Chief` office (id = 7)
+- Add matching roles: `Sport`, `FacultyDean`, `DormitoryChief`
+- Add demo staff users for the two new offices
 
 ---
 
@@ -205,16 +289,18 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 All demo accounts use the password: **`Password123`**
 
-| Role         | Email                          |
-|--------------|--------------------------------|
-| Admin        | admin@university.edu           |
-| Student      | student@university.edu         |
-| Student      | jane@university.edu            |
-| Department   | department@university.edu      |
-| Library      | library@university.edu         |
-| Finance      | finance@university.edu         |
-| Dormitory    | dormitory@university.edu       |
-| Registrar    | registrar@university.edu       |
+| Role | Email |
+|---|---|
+| Admin | `admin@university.edu` |
+| Student | `student@university.edu` |
+| Student | `jane@university.edu` |
+| Academic Department | `department@university.edu` |
+| Library | `library@university.edu` |
+| Sport Office | `sport@university.edu` |
+| Dormitory | `dormitory@university.edu` |
+| Registrar | `registrar@university.edu` |
+| Faculty Dean | `dean@university.edu` |
+| Dormitory Chief | `dormchief@university.edu` |
 
 ---
 
@@ -222,83 +308,65 @@ All demo accounts use the password: **`Password123`**
 
 Base URL: `http://localhost:5000/api`
 
----
+### Authentication
 
-### Auth
-
-| Method | Endpoint         | Description              | Auth |
-|--------|------------------|--------------------------|------|
-| POST   | /auth/login      | Login, returns JWT token | No   |
-| POST   | /auth/register   | Register a new student   | No   |
-| GET    | /auth/me         | Get current user profile | Yes  |
-
-**Login request:**
-```json
-{
-  "email": "student@university.edu",
-  "password": "Password123"
-}
-```
-**Login response:**
-```json
-{
-  "success": true,
-  "token": "<jwt>",
-  "user": { "id": 7, "full_name": "John Doe", "role": "Student" }
-}
-```
-
----
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| POST | `/auth/register` | Register a new student | No |
+| POST | `/auth/login` | Login, returns JWT token | No |
+| GET | `/auth/me` | Get current user info | Yes |
 
 ### Students
 
-| Method | Endpoint         | Description                    | Auth    |
-|--------|------------------|--------------------------------|---------|
-| GET    | /students/me     | Get own student profile        | Student |
-| GET    | /students        | List all students              | Admin   |
-
----
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/students/profile` | Get own student profile | Student |
+| GET | `/students` | List all students | Staff/Admin |
+| GET | `/students/:id` | Get student by ID | Staff/Admin |
 
 ### Clearance
 
-| Method | Endpoint                        | Description                          | Auth          |
-|--------|---------------------------------|--------------------------------------|---------------|
-| POST   | /clearance                      | Submit a new clearance request       | Student       |
-| GET    | /clearance/my                   | Get own clearance request & steps    | Student       |
-| GET    | /clearance                      | List all requests                    | Admin         |
-| GET    | /clearance/office               | Get pending steps for my office      | Staff         |
-| PATCH  | /clearance/steps/:stepId        | Approve or reject a step             | Staff         |
-
-**Approve/Reject step request:**
-```json
-{
-  "status": "Approved",
-  "comment": "All library books returned."
-}
-```
-
----
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| POST | `/clearance` | Submit a new clearance request | Student |
+| GET | `/clearance/my-request` | Get own latest request + steps | Student |
+| DELETE | `/clearance/cancel` | Cancel active pending request | Student |
+| GET | `/clearance/pending` | Get pending steps for my office | Staff |
+| PATCH | `/clearance/steps/:stepId/approve` | Approve a step | Staff |
+| PATCH | `/clearance/steps/:stepId/reject` | Reject a step | Staff |
+| GET | `/clearance/:id` | Get a specific request | Staff/Admin |
 
 ### Notifications
 
-| Method | Endpoint                  | Description                  | Auth |
-|--------|---------------------------|------------------------------|------|
-| GET    | /notifications            | Get my notifications         | Yes  |
-| PATCH  | /notifications/:id/read   | Mark a notification as read  | Yes  |
-
----
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/notifications` | Get my notifications | Yes |
+| PATCH | `/notifications/:id/read` | Mark one as read | Yes |
+| PATCH | `/notifications/read-all` | Mark all as read | Yes |
 
 ### Admin
 
-| Method | Endpoint         | Description              | Auth  |
-|--------|------------------|--------------------------|-------|
-| GET    | /admin/users     | List all users           | Admin |
-| GET    | /admin/logs      | View audit logs          | Admin |
-| GET    | /dashboard       | System-wide stats        | Admin |
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/admin/users` | List all users | Admin |
+| POST | `/admin/users` | Create a user | Admin |
+| PUT | `/admin/users/:id` | Update a user | Admin |
+| DELETE | `/admin/users/:id` | Delete a user | Admin |
+| GET | `/admin/departments` | List departments | Public |
+| POST | `/admin/departments` | Create a department | Admin |
+| PUT | `/admin/departments/:id` | Update a department | Admin |
+| DELETE | `/admin/departments/:id` | Delete a department | Admin |
 
----
+### Dashboard
+
+| Method | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/dashboard/student` | Student stats + progress | Student |
+| GET | `/dashboard/staff` | Office stats + recent requests | Staff |
+| GET | `/dashboard/admin` | System-wide stats + activity | Admin |
 
 ### Health Check
+
 ```
 GET /api/health
 → { "success": true, "message": "Server is running" }
@@ -309,36 +377,71 @@ GET /api/health
 ## Database Schema
 
 ```
-roles          (id, role_name)
-offices        (id, office_name)
-departments    (id, department_name)
+roles               (id, role_name)
+offices             (id, office_name)
+departments         (id, department_name)
 
-users          (id, full_name, email, password, role_id → roles, office_id → offices, created_at)
-students       (id, user_id → users, student_id, department_id → departments, year_of_study, phone)
+users               (id, full_name, email, password, role_id → roles, office_id → offices, created_at)
+students            (id, user_id → users, student_id, department_id → departments, year_of_study, phone, created_at)
 
-clearance_requests  (id, student_id → students, overall_status, created_at, updated_at)
+clearance_requests  (id, student_id → students, overall_status ENUM(Pending,Approved,Rejected), created_at, updated_at)
 clearance_steps     (id, clearance_request_id → clearance_requests, office_id → offices,
-                     status, approved_by → users, comment, approved_at)
+                     status ENUM(Pending,Approved,Rejected), approved_by → users, comment, approved_at)
 
-notifications  (id, user_id → users, message, is_read, created_at)
-audit_logs     (id, user_id → users, action, description, created_at)
+notifications       (id, user_id → users, message, is_read, created_at)
+audit_logs          (id, user_id → users, action, description, created_at)
 ```
 
 ---
 
-## Architecture & Trade-offs
+## Business Rules
 
-**Multi-role JWT Auth**
-A single `users` table holds all roles. The JWT payload carries `role_id` and `office_id`, allowing middleware to gate routes by role and restrict staff to only their own office's steps — no extra DB lookup needed per request.
+1. A student cannot submit a new request while one is still `Pending`
+2. A student can resubmit after a `Rejected` or cancelled request
+3. A student can cancel their own `Pending` request at any time
+4. Each office staff can only process steps assigned to their office
+5. The Registrar can only approve after all other 6 offices have approved
+6. Any single rejection immediately marks the overall request as `Rejected`
+7. When all 7 steps are approved the overall status becomes `Approved`
+8. Every significant action is recorded in `audit_logs`
 
-**Clearance as a Step Machine**
-Each clearance request spawns one `clearance_steps` row per office on creation. This means the full workflow is visible immediately (all steps start as `Pending`), and each office only ever updates their own row. The `overall_status` on `clearance_requests` is derived from the step states.
+---
 
-**MySQL over SQLite**
-The relational complexity (7 tables, multiple foreign keys, role-based access) benefits from a proper RDBMS. MySQL's `ENUM` types enforce valid status values at the DB level. Trade-off: requires a running MySQL instance unlike a file-based DB.
+## Architecture Notes
 
-**Audit Logs**
-Every meaningful action writes to `audit_logs`. This is intentionally simple (no event bus) — a service helper function is called directly from controllers, keeping the overhead minimal while satisfying traceability requirements.
+**Raw SQL over ORM** — All database operations use parameterized `mysql2` queries directly. This makes the SQL visible and easy to understand, avoids ORM magic, and prevents SQL injection.
 
-**Frontend Routing**
-React Router v7 with layout-based route guards. Each role gets its own layout and protected route wrapper, so a student can never render an admin page even if they manually navigate to the URL.
+**Step-based clearance** — When a student submits a request, one `clearance_steps` row is created per office immediately. This means the full workflow is visible from day one and each office only ever updates their own row.
+
+**Role in JWT** — The JWT payload carries `{ id, role, office_id }`. Middleware uses this to gate routes by role and restrict staff to their own office's steps without an extra DB lookup per request.
+
+**Registrar gate** — Before the Registrar can approve, the backend counts how many non-Registrar steps are not yet `Approved`. If any remain, the request is rejected with a clear error message.
+
+---
+
+## Screenshots
+
+> _Add screenshots here after running the application._
+
+| Page | Description |
+|---|---|
+| Login | Role-aware login with redirect |
+| Student Dashboard | Clearance progress, notifications |
+| Student Clearance | Step-by-step tracker with cancel/resubmit |
+| Staff Dashboard | Office stats and recent requests |
+| Staff Clearance | Pending requests table with approve/reject modal |
+| Admin Dashboard | System-wide statistics and activity log |
+| Admin Users | Full user management with create/edit/delete |
+| Admin Departments | Department management |
+
+---
+
+## Future Improvements
+
+- Email notifications via Nodemailer when a step is approved or rejected
+- PDF clearance certificate generation on final approval
+- Student can upload supporting documents per clearance step
+- Admin can configure the clearance workflow order dynamically
+- Pagination on large tables (users, clearance requests)
+- Dark mode support
+- Two-factor authentication for admin accounts
