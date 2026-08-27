@@ -12,6 +12,7 @@ const navItems = {
     { to: "/admin/dashboard",   label: "Dashboard",   icon: "🏠" },
     { to: "/admin/users",       label: "Users",       icon: "👥" },
     { to: "/admin/departments", label: "Departments", icon: "🏛️" },
+    { to: "/admin/logs",        label: "Audit Logs",  icon: "📜" },
   ],
 };
 

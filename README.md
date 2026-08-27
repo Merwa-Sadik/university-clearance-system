@@ -285,6 +285,72 @@ This will:
 
 ---
 
+## Deploying to Railway
+
+### Prerequisites
+- A [Railway](https://railway.app) account
+- Your code pushed to a GitHub repository
+
+---
+
+### Step 1 — Create the Backend Service
+
+1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
+2. Select your repository, then choose the **`server`** folder as the root directory
+3. Railway will auto-detect Node.js and use `railway.json` to run `node server.js`
+
+**Add a MySQL database:**
+4. In your project dashboard → **+ New** → **Database** → **MySQL**
+5. Railway will inject these variables automatically — copy them into your backend service's environment:
+
+| Variable | Source |
+|----------|--------|
+| `DB_HOST` | From Railway MySQL plugin (`MYSQLHOST`) |
+| `DB_USER` | From Railway MySQL plugin (`MYSQLUSER`) |
+| `DB_PASSWORD` | From Railway MySQL plugin (`MYSQLPASSWORD`) |
+| `DB_NAME` | From Railway MySQL plugin (`MYSQLDATABASE`) |
+
+> Tip: In Railway you can reference plugin variables directly using `${{MySQL.MYSQLHOST}}` syntax in your env var values.
+
+**Add remaining backend env vars:**
+```
+JWT_SECRET=replace_with_a_long_random_string
+JWT_EXPIRES_IN=1d
+CLIENT_URL=https://your-frontend.up.railway.app
+```
+
+**Initialize the database:**
+6. Once the backend is deployed, open the Railway shell for the backend service and run:
+```bash
+node database/init.js
+```
+This runs `schema.sql` + `seed.sql` once to set up all tables and demo accounts.
+
+---
+
+### Step 2 — Create the Frontend Service
+
+1. In the same Railway project → **+ New** → **GitHub Repo** → select your repo
+2. Set the **root directory** to `client`
+3. Railway will use `railway.json` to run `npm install && npm run build` then serve `dist/`
+
+**Add frontend env var:**
+```
+VITE_API_URL=https://your-backend.up.railway.app/api
+```
+> Replace `your-backend.up.railway.app` with the actual domain Railway assigned to your backend service.
+
+---
+
+### Step 3 — Update CORS on the backend
+
+Once your frontend URL is known, set this on the backend service:
+```
+CLIENT_URL=https://your-frontend.up.railway.app
+```
+
+---
+
 ## Demo Accounts
 
 All demo accounts use the password: **`Password123`**

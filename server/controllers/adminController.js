@@ -115,4 +115,29 @@ const deleteDepartment = (req, res) => {
   });
 };
 
-module.exports = { getAllUsers, createUser, updateUser, deleteUser, getDepartments, createDepartment, updateDepartment, deleteDepartment };
+// DELETE /api/admin/logs  — clear all audit logs
+const clearLogs = (req, res) => {
+  db.query("TRUNCATE TABLE audit_logs", (err) => {
+    if (err) return sendError(res, "Could not clear logs", 500);
+    logAction(req.user.id, "CLEAR_LOGS", "Admin cleared all audit logs");
+    sendSuccess(res, {}, "Audit logs cleared");
+  });
+};
+
+// GET /api/admin/logs
+const getLogs = (req, res) => {
+  const sql = `
+    SELECT al.id, al.action, al.description, al.created_at,
+           u.full_name
+    FROM audit_logs al
+    LEFT JOIN users u ON al.user_id = u.id
+    ORDER BY al.created_at DESC
+    LIMIT 100
+  `;
+  db.query(sql, (err, results) => {
+    if (err) return sendError(res, "Database error", 500);
+    sendSuccess(res, results);
+  });
+};
+
+module.exports = { getAllUsers, createUser, updateUser, deleteUser, getDepartments, createDepartment, updateDepartment, deleteDepartment, clearLogs, getLogs };
