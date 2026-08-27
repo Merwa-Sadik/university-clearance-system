@@ -18,6 +18,7 @@ import StaffClearance from "./pages/staff/StaffClearance";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDepartments from "./pages/admin/AdminDepartments";
+import AdminLogs from "./pages/admin/AdminLogs";
 
 const STAFF_ROLES = ["Department", "Library", "Sport", "Dormitory", "Registrar", "FacultyDean", "DormitoryChief"];
 
@@ -62,6 +63,9 @@ function App() {
           } />
           <Route path="/admin/departments" element={
             <ProtectedRoute allowedRoles={["Admin"]}><AdminDepartments /></ProtectedRoute>
+          } />
+          <Route path="/admin/logs" element={
+            <ProtectedRoute allowedRoles={["Admin"]}><AdminLogs /></ProtectedRoute>
           } />
 
           {/* Redirects */}

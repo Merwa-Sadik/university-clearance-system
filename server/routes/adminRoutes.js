@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getAllUsers, createUser, updateUser, deleteUser, getDepartments, createDepartment, updateDepartment, deleteDepartment } = require("../controllers/adminController");
+const { getAllUsers, createUser, updateUser, deleteUser, getDepartments, createDepartment, updateDepartment, deleteDepartment, clearLogs, getLogs } = require("../controllers/adminController");
 const { protect } = require("../middleware/authMiddleware");
 const { authorize } = require("../middleware/roleMiddleware");
 
@@ -8,6 +8,9 @@ const { authorize } = require("../middleware/roleMiddleware");
 router.get("/departments", getDepartments);
 
 router.use(protect, authorize("Admin")); // all routes below require Admin
+
+router.get("/logs", getLogs);
+router.delete("/logs", clearLogs);
 
 router.get("/users", getAllUsers);
 router.post("/users", createUser);
