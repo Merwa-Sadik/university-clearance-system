@@ -105,42 +105,4 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- ─────────────────────────────────────────
--- INDEXES (safe: drop first if they exist)
--- ─────────────────────────────────────────
-DROP PROCEDURE IF EXISTS create_index_if_not_exists;
-DELIMITER //
-CREATE PROCEDURE create_index_if_not_exists()
-BEGIN
-  -- idx_users_email
-  IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'users' AND index_name = 'idx_users_email') THEN
-    CREATE INDEX idx_users_email ON users(email);
-  END IF;
-  -- idx_students_student_id
-  IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'students' AND index_name = 'idx_students_student_id') THEN
-    CREATE INDEX idx_students_student_id ON students(student_id);
-  END IF;
-  -- idx_cr_student_id
-  IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'clearance_requests' AND index_name = 'idx_cr_student_id') THEN
-    CREATE INDEX idx_cr_student_id ON clearance_requests(student_id);
-  END IF;
-  -- idx_cr_status
-  IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'clearance_requests' AND index_name = 'idx_cr_status') THEN
-    CREATE INDEX idx_cr_status ON clearance_requests(overall_status);
-  END IF;
-  -- idx_cs_request_id
-  IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'clearance_steps' AND index_name = 'idx_cs_request_id') THEN
-    CREATE INDEX idx_cs_request_id ON clearance_steps(clearance_request_id);
-  END IF;
-  -- idx_cs_office_status
-  IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'clearance_steps' AND index_name = 'idx_cs_office_status') THEN
-    CREATE INDEX idx_cs_office_status ON clearance_steps(office_id, status);
-  END IF;
-  -- idx_notif_user_read
-  IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'notifications' AND index_name = 'idx_notif_user_read') THEN
-    CREATE INDEX idx_notif_user_read ON notifications(user_id, is_read);
-  END IF;
-END //
-DELIMITER ;
-CALL create_index_if_not_exists();
-DROP PROCEDURE IF EXISTS create_index_if_not_exists;
+
