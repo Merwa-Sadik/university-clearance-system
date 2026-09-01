@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS clearance_requests (
   student_id     INT NOT NULL,
   overall_status ENUM('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending',
   created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_at     DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
 
