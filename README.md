@@ -285,69 +285,107 @@ This will:
 
 ---
 
-## Deploying to Railway
+## Deploying with Vercel + Render
 
 ### Prerequisites
-- A [Railway](https://railway.app) account
+- A [Vercel](https://vercel.com) account (frontend)
+- A [Render](https://render.com) account (backend + database)
 - Your code pushed to a GitHub repository
 
 ---
 
-### Step 1 — Create the Backend Service
+### Step 1 — Create the MySQL Database on Render
 
-1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
-2. Select your repository, then choose the **`server`** folder as the root directory
-3. Railway will auto-detect Node.js and use `railway.json` to run `node server.js`
+1. Go to [render.com](https://render.com) → **New** → **MySQL**
+2. Give it a name e.g. `university-clearance-db`
+3. Choose the free tier → **Create Database**
+4. Once created, copy these values from the database info page:
 
-**Add a MySQL database:**
-4. In your project dashboard → **+ New** → **Database** → **MySQL**
-5. Railway will inject these variables automatically — copy them into your backend service's environment:
+| Variable | Where to find it |
+|----------|------------------|
+| `DB_HOST` | Hostname |
+| `DB_PORT` | Port (usually `3306`) |
+| `DB_USER` | Username |
+| `DB_PASSWORD` | Password |
+| `DB_NAME` | Database name |
 
-| Variable | Source |
-|----------|--------|
-| `DB_HOST` | From Railway MySQL plugin (`MYSQLHOST`) |
-| `DB_USER` | From Railway MySQL plugin (`MYSQLUSER`) |
-| `DB_PASSWORD` | From Railway MySQL plugin (`MYSQLPASSWORD`) |
-| `DB_NAME` | From Railway MySQL plugin (`MYSQLDATABASE`) |
+---
 
-> Tip: In Railway you can reference plugin variables directly using `${{MySQL.MYSQLHOST}}` syntax in your env var values.
+### Step 2 — Deploy the Backend on Render
 
-**Add remaining backend env vars:**
+1. Go to Render → **New** → **Web Service**
+2. Connect your GitHub repository
+3. Set the **Root Directory** to `server`
+4. Render will auto-detect the `render.yaml` and fill in build/start commands
+5. Set the following **Environment Variables**:
+
 ```
+DB_HOST=<from step 1>
+DB_PORT=<from step 1>
+DB_USER=<from step 1>
+DB_PASSWORD=<from step 1>
+DB_NAME=<from step 1>
+DB_SSL=true
 JWT_SECRET=replace_with_a_long_random_string
 JWT_EXPIRES_IN=1d
-CLIENT_URL=https://your-frontend.up.railway.app
+CLIENT_URL=https://your-app.vercel.app
 ```
 
+> Set `DB_SSL=true` — Render MySQL requires SSL connections.
+
+6. Click **Deploy** and wait for it to go live
+7. Copy your backend URL e.g. `https://university-clearance-api.onrender.com`
+
 **Initialize the database:**
-6. Once the backend is deployed, open the Railway shell for the backend service and run:
+
+8. In Render → your web service → **Shell** tab, run:
 ```bash
 node database/init.js
 ```
-This runs `schema.sql` + `seed.sql` once to set up all tables and demo accounts.
+This creates all tables and inserts all demo accounts.
 
 ---
 
-### Step 2 — Create the Frontend Service
+### Step 3 — Deploy the Frontend on Vercel
 
-1. In the same Railway project → **+ New** → **GitHub Repo** → select your repo
-2. Set the **root directory** to `client`
-3. Railway will use `railway.json` to run `npm install && npm run build` then serve `dist/`
+1. Go to [vercel.com](https://vercel.com) → **Add New Project**
+2. Import your GitHub repository
+3. Set the **Root Directory** to `client`
+4. Vercel auto-detects Vite — no build settings needed (`vercel.json` handles it)
+5. Add this **Environment Variable**:
 
-**Add frontend env var:**
 ```
-VITE_API_URL=https://your-backend.up.railway.app/api
+VITE_API_URL=https://university-clearance-api.onrender.com/api
 ```
-> Replace `your-backend.up.railway.app` with the actual domain Railway assigned to your backend service.
+
+> Replace with your actual Render backend URL from Step 2.
+
+6. Click **Deploy**
+7. Copy your Vercel frontend URL e.g. `https://your-app.vercel.app`
 
 ---
 
-### Step 3 — Update CORS on the backend
+### Step 4 — Update CORS on the Backend
 
-Once your frontend URL is known, set this on the backend service:
+Go back to Render → your web service → **Environment** and update:
+
 ```
-CLIENT_URL=https://your-frontend.up.railway.app
+CLIENT_URL=https://your-app.vercel.app
 ```
+
+Then trigger a **Manual Deploy** on Render so the new CORS origin takes effect.
+
+---
+
+### Deployment Summary
+
+| Service | Platform | URL pattern |
+|---------|----------|-------------|
+| Frontend | Vercel | `https://your-app.vercel.app` |
+| Backend API | Render | `https://university-clearance-api.onrender.com` |
+| MySQL Database | Render | Internal to backend |
+
+> **Note:** Render free tier spins down after 15 minutes of inactivity. The first request after sleep may take 30–60 seconds to respond. Upgrade to a paid plan to avoid this.
 
 ---
 
