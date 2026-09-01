@@ -285,107 +285,115 @@ This will:
 
 ---
 
-## Deploying with Vercel + Render
+## Deploying with Render + Vercel + FreeSQLDatabase.com
 
-### Prerequisites
-- A [Vercel](https://vercel.com) account (frontend)
-- A [Render](https://render.com) account (backend + database)
+### What you need
+- A [FreeSQLDatabase.com](https://www.freesqldatabase.com) account — free MySQL database, no card needed
+- A [Render](https://render.com) account — backend hosting
+- A [Vercel](https://vercel.com) account — frontend hosting
 - Your code pushed to a GitHub repository
 
 ---
 
-### Step 1 — Create the MySQL Database on Render
+### Step 1 — Get your free MySQL database
 
-1. Go to [render.com](https://render.com) → **New** → **MySQL**
-2. Give it a name e.g. `university-clearance-db`
-3. Choose the free tier → **Create Database**
-4. Once created, copy these values from the database info page:
+1. Go to [freesqldatabase.com](https://www.freesqldatabase.com)
+2. Fill in the signup form with your email and password
+3. Check your email — your database credentials will be sent automatically
+4. Save these 5 values from the email:
 
-| Variable | Where to find it |
-|----------|------------------|
-| `DB_HOST` | Hostname |
-| `DB_PORT` | Port (usually `3306`) |
-| `DB_USER` | Username |
-| `DB_PASSWORD` | Password |
-| `DB_NAME` | Database name |
+| Variable | Example value |
+|----------|---------------|
+| `DB_HOST` | `sql.freesqldatabase.com` |
+| `DB_PORT` | `3306` |
+| `DB_USER` | `sql1234567` |
+| `DB_PASSWORD` | `abc123xyz` |
+| `DB_NAME` | `sql1234567` |
+
+> Note: `DB_USER` and `DB_NAME` are usually the same value.
 
 ---
 
-### Step 2 — Deploy the Backend on Render
+### Step 2 — Deploy the backend on Render
 
-1. Go to Render → **New** → **Web Service**
-2. Connect your GitHub repository
-3. Set the **Root Directory** to `server`
-4. Render will auto-detect the `render.yaml` and fill in build/start commands
-5. Set the following **Environment Variables**:
+1. Go to [render.com](https://render.com) → sign in
+2. Click **New +** → **Web Service**
+3. Connect your GitHub repository
+4. Set **Root Directory** → `server`
+5. Render auto-detects `render.yaml` — build and start commands fill in automatically
+6. Add these **Environment Variables**:
 
 ```
-DB_HOST=<from step 1>
-DB_PORT=<from step 1>
-DB_USER=<from step 1>
-DB_PASSWORD=<from step 1>
-DB_NAME=<from step 1>
-DB_SSL=true
-JWT_SECRET=replace_with_a_long_random_string
-JWT_EXPIRES_IN=1d
-CLIENT_URL=https://your-app.vercel.app
+DB_HOST        → paste from step 1
+DB_PORT        → 3306
+DB_USER        → paste from step 1
+DB_PASSWORD    → paste from step 1
+DB_NAME        → paste from step 1
+DB_SSL         → false
+JWT_SECRET     → any long random string e.g. mySuperSecretKey12345
+JWT_EXPIRES_IN → 1d
+CLIENT_URL     → http://localhost (temporary — update after step 3)
 ```
 
-> Set `DB_SSL=true` — Render MySQL requires SSL connections.
+7. Click **Deploy** and wait for it to finish
+8. Copy your backend URL — looks like `https://university-clearance-api.onrender.com`
 
-6. Click **Deploy** and wait for it to go live
-7. Copy your backend URL e.g. `https://university-clearance-api.onrender.com`
+**Seed the database:**
 
-**Initialize the database:**
-
-8. In Render → your web service → **Shell** tab, run:
+9. In Render → your web service → **Shell** tab → run:
 ```bash
 node database/init.js
 ```
-This creates all tables and inserts all demo accounts.
+Expected output:
+```
+✅ schema.sql executed successfully
+✅ seed.sql executed successfully
+🎉 Database ready.
+```
 
 ---
 
-### Step 3 — Deploy the Frontend on Vercel
+### Step 3 — Deploy the frontend on Vercel
 
-1. Go to [vercel.com](https://vercel.com) → **Add New Project**
-2. Import your GitHub repository
-3. Set the **Root Directory** to `client`
-4. Vercel auto-detects Vite — no build settings needed (`vercel.json` handles it)
+1. Go to [vercel.com](https://vercel.com) → sign in
+2. Click **Add New Project** → import your GitHub repository
+3. Set **Root Directory** → `client`
+4. Vercel auto-detects Vite — no build settings needed
 5. Add this **Environment Variable**:
 
 ```
-VITE_API_URL=https://university-clearance-api.onrender.com/api
+VITE_API_URL → https://university-clearance-api.onrender.com/api
 ```
 
-> Replace with your actual Render backend URL from Step 2.
+> Replace with your actual Render URL from step 2.
 
-6. Click **Deploy**
-7. Copy your Vercel frontend URL e.g. `https://your-app.vercel.app`
+6. Click **Deploy** and wait for it to finish
+7. Copy your frontend URL — looks like `https://your-app.vercel.app`
 
 ---
 
-### Step 4 — Update CORS on the Backend
+### Step 4 — Connect frontend to backend (CORS)
 
-Go back to Render → your web service → **Environment** and update:
+1. Go back to **Render** → your web service → **Environment**
+2. Update `CLIENT_URL`:
 
 ```
-CLIENT_URL=https://your-app.vercel.app
+CLIENT_URL → https://your-app.vercel.app
 ```
 
-Then trigger a **Manual Deploy** on Render so the new CORS origin takes effect.
+3. Click **Manual Deploy** → **Deploy latest commit**
 
 ---
 
 ### Deployment Summary
 
-| Service | Platform | URL pattern |
-|---------|----------|-------------|
+| What | Platform | URL |
+|------|----------|-----|
 | Frontend | Vercel | `https://your-app.vercel.app` |
 | Backend API | Render | `https://university-clearance-api.onrender.com` |
-| MySQL Database | Render | Internal to backend |
+| MySQL Database | FreeSQLDatabase.com | External — credentials in env vars |
 
-> **Note:** Render free tier spins down after 15 minutes of inactivity. The first request after sleep may take 30–60 seconds to respond. Upgrade to a paid plan to avoid this.
+> **Note:** Render free tier sleeps after 15 minutes of inactivity. The first request after sleep takes ~30 seconds to wake up. This is normal on the free plan.
 
 ---
 
