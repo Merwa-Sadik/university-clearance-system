@@ -66,7 +66,7 @@ const cancelRequest = (req, res) => {
         const requestId = rows[0].id;
 
         db.query(
-          "UPDATE clearance_requests SET overall_status = 'Rejected' WHERE id = ?",
+          "UPDATE clearance_requests SET overall_status = 'Rejected', updated_at = NOW() WHERE id = ?",
           [requestId],
           (err3) => {
             if (err3) return sendError(res, "Could not cancel request", 500);
@@ -280,7 +280,7 @@ const doUpdateStep = (req, res, step, stepId, newStatus, comment) => {
 
       if (newStatus === "Rejected") {
         db.query(
-          "UPDATE clearance_requests SET overall_status = 'Rejected' WHERE id = ?",
+          "UPDATE clearance_requests SET overall_status = 'Rejected', updated_at = NOW() WHERE id = ?",
           [requestId],
           (err3) => {
             if (err3) return sendError(res, "Could not update request status", 500);
@@ -305,7 +305,7 @@ const doUpdateStep = (req, res, step, stepId, newStatus, comment) => {
 
             if (Number(total) === Number(approved)) {
               db.query(
-                "UPDATE clearance_requests SET overall_status = 'Approved' WHERE id = ?",
+                "UPDATE clearance_requests SET overall_status = 'Approved', updated_at = NOW() WHERE id = ?",
                 [requestId],
                 (err4) => {
                   if (err4) return sendError(res, "Could not finalize request", 500);
