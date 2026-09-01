@@ -1,6 +1,17 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const { execSync } = require("child_process");
+
+// Auto-seed on first deploy if SEED_DB=true
+if (process.env.SEED_DB === "true") {
+  console.log("🌱 SEED_DB=true detected — running database init...");
+  try {
+    execSync("node database/init.js", { stdio: "inherit" });
+  } catch (e) {
+    console.error("Seed failed:", e.message);
+  }
+}
 
 // Initialize DB connection pool (runs connection test on import)
 require("./config/db");
