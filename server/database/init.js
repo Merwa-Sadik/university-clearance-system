@@ -5,9 +5,11 @@ const path = require("path");
 
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
+  port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  multipleStatements: true, // needed to run the full SQL files
+  database: process.env.DB_NAME,
+  multipleStatements: true,
 });
 
 function runFile(filePath, label) {

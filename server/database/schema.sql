@@ -1,6 +1,3 @@
-CREATE DATABASE IF NOT EXISTS student_clearance;
-USE student_clearance;
-
 -- ─────────────────────────────────────────
 -- ROLES
 -- ─────────────────────────────────────────
