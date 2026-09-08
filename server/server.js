@@ -21,6 +21,7 @@ const app = express();
 // ── Middleware ────────────────────────────────────────────
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://university-clearance-system-jm26.vercel.app",
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
